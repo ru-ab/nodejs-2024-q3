@@ -28,9 +28,14 @@ rl.on('close', () => {
 
 async function handleInput() {
   for await (const line of rl) {
-    switch (line) {
+    switch (line.trim()) {
+      case '': {
+        rl.prompt();
+        break;
+      }
       case '.exit': {
-        return rl.close();
+        rl.close();
+        break;
       }
       default: {
         try {
@@ -43,11 +48,12 @@ async function handleInput() {
           if (await isPathExists(commandModulePath)) {
             const commandModule = await import(commandModulePath);
             await commandModule.default({ state });
-            rl.prompt();
           } else {
             rl.output.write('Invalid input\n');
-            rl.prompt();
           }
+
+          rl.output.write(`You are currently in ${state.cwd}\n`);
+          rl.prompt();
         } catch {
           rl.output.write('Operation failed');
         }
