@@ -1,6 +1,7 @@
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline/promises';
+import { InvalidInputError } from './errors/InvalidInputError.js';
 import { getArg } from './utils/getArg.js';
 import { isPathExists } from './utils/isPathExists.js';
 
@@ -52,13 +53,16 @@ async function handleInput() {
             const commandModule = await import(commandModulePath);
             await commandModule.default({ state, args });
           } else {
-            rl.output.write('Invalid input\n');
+            throw new InvalidInputError();
           }
-
-          rl.output.write(`You are currently in ${process.cwd()}\n`);
-        } catch {
-          rl.output.write('Operation failed\n');
+        } catch (error) {
+          if (error instanceof InvalidInputError) {
+            rl.output.write('Invalid input\n');
+          } else {
+            rl.output.write('Operation failed\n');
+          }
         } finally {
+          rl.output.write(`You are currently in ${process.cwd()}\n`);
           rl.prompt();
         }
       }
