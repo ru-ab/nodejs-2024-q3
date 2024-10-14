@@ -6,5 +6,5 @@ export function getArg(argName) {
     }
   }
 
-  return '';
+  return undefined;
 }

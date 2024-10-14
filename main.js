@@ -4,11 +4,12 @@ import { createInterface } from 'node:readline/promises';
 import { InvalidInputError } from './errors/InvalidInputError.js';
 import { getArg } from './utils/getArg.js';
 import { isPathExists } from './utils/isPathExists.js';
+import { parseCommandArgs } from './utils/parseCommandArgs.js';
 
 process.chdir(homedir());
 
 const state = {
-  username: getArg('--username') || 'Anonymous',
+  username: getArg('--username'),
 };
 
 const rl = createInterface({
@@ -51,7 +52,9 @@ async function handleInput() {
 
           if (await isPathExists(commandModulePath)) {
             const commandModule = await import(commandModulePath);
-            await commandModule.default({ state, args });
+            await commandModule.default({
+              args: parseCommandArgs(args.join(' ')),
+            });
           } else {
             throw new InvalidInputError();
           }
