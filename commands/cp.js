@@ -1,5 +1,6 @@
 import { createReadStream, createWriteStream } from 'node:fs';
 import { join, parse } from 'node:path';
+import { pipeline } from 'node:stream/promises';
 import { InvalidInputError } from '../errors/InvalidInputError.js';
 
 export default async function ({ args }) {
@@ -13,10 +14,5 @@ export default async function ({ args }) {
   const rs = createReadStream(pathToFile);
   const ws = createWriteStream(join(newDirPath, filename));
 
-  await new Promise((resolve, reject) => {
-    rs.on('data', (chunk) => ws.write(chunk));
-    rs.on('end', resolve);
-    rs.on('error', reject);
-    ws.on('error', reject);
-  });
+  await pipeline(rs, ws);
 }
