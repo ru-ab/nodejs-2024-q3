@@ -20,7 +20,7 @@ export default async function ({ args }) {
   const [arg] = args;
 
   const methods = {
-    ['--EOL']: () => JSON.stringify(EOL),
+    ['--EOL']: () => JSON.stringify(EOL).replaceAll('"', ''),
     ['--cpus']: getCpusInfo,
     ['--homedir']: homedir,
     ['--username']: () => userInfo().username,
