@@ -5,6 +5,7 @@ import { InvalidInputError } from './errors/InvalidInputError.js';
 import { getArg } from './utils/getArg.js';
 import { isPathExists } from './utils/isPathExists.js';
 import { parseCommandArgs } from './utils/parseCommandArgs.js';
+import { pathToFileURL } from 'node:url';
 
 process.chdir(homedir());
 
@@ -51,7 +52,9 @@ async function handleInput() {
           );
 
           if (await isPathExists(commandModulePath)) {
-            const commandModule = await import(commandModulePath);
+            const commandModule = await import(
+              pathToFileURL(commandModulePath)
+            );
             await commandModule.default({
               args: parseCommandArgs(args.join(' ')),
             });
