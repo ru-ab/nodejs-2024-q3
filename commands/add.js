@@ -1,4 +1,6 @@
 import { createWriteStream } from 'node:fs';
+import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import { InvalidInputError } from '../errors/InvalidInputError.js';
 
 export default async function ({ args }) {
@@ -6,7 +8,8 @@ export default async function ({ args }) {
     throw new InvalidInputError();
   }
 
+  const rs = Readable.from([]);
   const ws = createWriteStream(args[0]);
-  ws.write('');
-  ws.close();
+
+  await pipeline(rs, ws);
 }
