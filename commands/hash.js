@@ -16,8 +16,9 @@ export default async function ({ args }) {
     input
       .pipe(hash)
       .setEncoding('hex')
-      .on('data', (chunk) => process.stdout.write(chunk + '\n'))
-      .on('end', resolve)
-      .on('error', reject);
+      .on('data', (chunk) => process.stdout.write(chunk + '\n'));
+
+    input.on('end', resolve);
+    input.on('error', reject);
   });
 }
