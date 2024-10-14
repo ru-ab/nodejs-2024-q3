@@ -8,4 +8,5 @@ export default async function ({ args }) {
 
   const ws = createWriteStream(args[0]);
   ws.write('');
+  ws.close();
 }
