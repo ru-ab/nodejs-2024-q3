@@ -18,7 +18,8 @@ export default async function () {
         Name: file.name,
         Type: 'directory',
       });
-    } else {
+    }
+    if (file.isFile()) {
       fileTable.push({
         Name: file.name,
         Type: 'file',
