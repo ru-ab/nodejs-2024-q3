@@ -48,4 +48,18 @@ app.put('/api/users/{userId}', async (req, res) => {
   res.status(200).json(user);
 });
 
+app.delete('/api/users/{userId}', async (req, res) => {
+  const userId = validateId(req.params.userId);
+
+  const userService = new UserService();
+  const user = userService.deleteUser(userId);
+
+  if (!user) {
+    res.status(404).json({ message: `User ${userId} not found` });
+    return;
+  }
+
+  res.status(204).json();
+});
+
 app.listen(PORT);

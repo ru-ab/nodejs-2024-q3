@@ -39,4 +39,15 @@ export class UserService {
 
     return newUser;
   }
+
+  public deleteUser(id: string): User | undefined {
+    const user = this.getUser(id);
+    if (!user) {
+      return;
+    }
+
+    delete db.users[id];
+
+    return user;
+  }
 }

@@ -12,7 +12,7 @@ export class Response {
     return this;
   }
 
-  public json(data: unknown) {
+  public json(data?: unknown) {
     this.response.setHeader('Content-Type', 'application/json');
     this.response.end(JSON.stringify(data));
   }

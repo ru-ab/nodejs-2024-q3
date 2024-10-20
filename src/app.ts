@@ -36,6 +36,10 @@ export class App {
     this.use('PUT', path, handler);
   }
 
+  public delete(path: string, handler: RequestHandler) {
+    this.use('DELETE', path, handler);
+  }
+
   private use(method: string, path: string, handler: RequestHandler) {
     if (!this.routes[path]) {
       this.routes[path] = {};
