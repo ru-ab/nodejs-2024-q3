@@ -3,7 +3,7 @@ import { UserService } from './services/userService';
 import { validateId } from './validators/validateId';
 import { validateUserDto } from './validators/validateUserDto';
 
-const PORT = 3000;
+const port: number = Number(process.env.PORT || 4000);
 const app = new App();
 
 app.get('/api/users', async (req, res) => {
@@ -62,4 +62,4 @@ app.delete('/api/users/{userId}', async (req, res) => {
   res.status(204).json();
 });
 
-app.listen(PORT);
+app.listen(port);

@@ -1,4 +1,5 @@
 const path = require('path');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
   entry: './src/index.ts',
@@ -19,4 +20,5 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
   },
   externals: { 'node:http': 'commonjs http' },
+  plugins: [new Dotenv()],
 };
