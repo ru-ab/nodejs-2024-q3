@@ -10,13 +10,14 @@ import { ValidateError } from './errors/validateError';
 
 type Method = 'GET' | 'POST';
 type RequestHandler = (req: Request, res: Response) => Promise<void>;
+type RouteHandlers = {
+  [key: string]: RequestHandler;
+};
 
 export class App {
   private server: Server<typeof IncomingMessage, typeof ServerResponse>;
   private routes: {
-    [key: string]: {
-      [key: string]: RequestHandler;
-    };
+    [key: string]: RouteHandlers;
   };
 
   constructor() {
@@ -52,7 +53,30 @@ export class App {
     const method = request.method;
     const url = request.url;
 
-    const routeHandlers = this.routes[url];
+    let routeHandlers: RouteHandlers | null = null;
+    const routes = Object.keys(this.routes);
+    for (const route of routes) {
+      const routeMatches = [...route.matchAll(/\{([^}]*)\}/g)].map(
+        (match) => match[1]
+      );
+
+      let urlRegex = new RegExp(`^${route}$`);
+      if (routeMatches.length) {
+        urlRegex = new RegExp(
+          `^${route.replace(`{${routeMatches[0]}}`, '(.*)')}$`,
+          'g'
+        );
+        const urlMatches = [...url.matchAll(urlRegex)].map((match) => match[1]);
+        request.params = {
+          [routeMatches[0]]: urlMatches[0],
+        };
+      }
+
+      if (url.match(urlRegex)) {
+        routeHandlers = this.routes[route];
+      }
+    }
+
     if (routeHandlers && routeHandlers[method]) {
       try {
         await routeHandlers[method](request, response);

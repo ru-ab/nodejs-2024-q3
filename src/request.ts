@@ -5,9 +5,12 @@ export class Request {
 
   private bodyData: object;
 
+  private paramsData: { [key: string]: string };
+
   constructor(request: IncomingMessage) {
     this.request = request;
     this.bodyData = {};
+    this.paramsData = {};
   }
 
   public async parseBody(): Promise<boolean> {
@@ -38,6 +41,14 @@ export class Request {
 
   public get body() {
     return this.bodyData;
+  }
+
+  public get params() {
+    return this.paramsData;
+  }
+
+  public set params(params: { [key: string]: string }) {
+    this.paramsData = params;
   }
 
   public get method() {

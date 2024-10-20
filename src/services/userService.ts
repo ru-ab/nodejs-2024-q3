@@ -4,16 +4,22 @@ import { User } from '../types/user.type';
 
 export class UserService {
   public getUsers(): User[] {
-    return db.users;
+    return Object.values(db.users);
+  }
+
+  public getUser(id: string): User {
+    return db.users[id];
   }
 
   public createUser(dto: Omit<User, 'id'>): User {
+    const id = uuidv4();
+
     const user = {
-      id: uuidv4(),
+      id,
       ...dto,
     };
 
-    db.users.push(user);
+    db.users[id] = user;
 
     return user;
   }

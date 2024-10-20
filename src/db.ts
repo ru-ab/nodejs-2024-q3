@@ -1,3 +1,3 @@
 import { User } from './types/user.type';
 
-export const db: { users: User[] } = { users: [] };
+export const db: { users: { [key: string]: User } } = { users: {} };
