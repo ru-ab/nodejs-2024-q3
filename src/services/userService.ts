@@ -7,7 +7,7 @@ export class UserService {
     return Object.values(db.users);
   }
 
-  public getUser(id: string): User {
+  public getUser(id: string): User | undefined {
     return db.users[id];
   }
 
@@ -22,5 +22,21 @@ export class UserService {
     db.users[id] = user;
 
     return user;
+  }
+
+  public updateUser(id: string, dto: Omit<User, 'id'>): User | undefined {
+    const user = this.getUser(id);
+    if (!user) {
+      return;
+    }
+
+    const newUser = {
+      id,
+      ...dto,
+    };
+
+    db.users[id] = newUser;
+
+    return newUser;
   }
 }

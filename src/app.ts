@@ -8,7 +8,6 @@ import { Request } from './request';
 import { Response } from './response';
 import { ValidateError } from './errors/validateError';
 
-type Method = 'GET' | 'POST';
 type RequestHandler = (req: Request, res: Response) => Promise<void>;
 type RouteHandlers = {
   [key: string]: RequestHandler;
@@ -33,7 +32,11 @@ export class App {
     this.use('POST', path, handler);
   }
 
-  private use(method: Method, path: string, handler: RequestHandler) {
+  public put(path: string, handler: RequestHandler) {
+    this.use('PUT', path, handler);
+  }
+
+  private use(method: string, path: string, handler: RequestHandler) {
     if (!this.routes[path]) {
       this.routes[path] = {};
     }

@@ -33,4 +33,19 @@ app.post('/api/users', async (req, res) => {
   res.status(201).json(user);
 });
 
+app.put('/api/users/{userId}', async (req, res) => {
+  const userId = validateId(req.params.userId);
+  const dto = validateUserDto(req.body);
+
+  const userService = new UserService();
+  const user = userService.updateUser(userId, dto);
+
+  if (!user) {
+    res.status(404).json({ message: `User ${userId} not found` });
+    return;
+  }
+
+  res.status(200).json(user);
+});
+
 app.listen(PORT);
