@@ -100,7 +100,7 @@ export class App {
   }
 
   public listen(port: number) {
-    this.server.listen(port, () => {
+    return this.server.listen(port, () => {
       console.log(`Server listening on port ${port}`);
     });
   }

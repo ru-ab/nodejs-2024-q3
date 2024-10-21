@@ -62,4 +62,5 @@ app.delete('/api/users/{userId}', async (req, res) => {
   res.status(204).json();
 });
 
-app.listen(port);
+const server = app.listen(port);
+export default server;
