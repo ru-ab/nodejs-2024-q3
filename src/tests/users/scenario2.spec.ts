@@ -21,9 +21,12 @@ describe('/api/users scenario 2', () => {
     { username: validUserDto.username, hobbies: validUserDto.hobbies },
     { username: validUserDto.username, age: validUserDto.age },
     { ...validUserDto, username: 1 },
+    { ...validUserDto, username: '' },
     { ...validUserDto, age: true },
+    { ...validUserDto, age: -1 },
     { ...validUserDto, hobbies: 'Cooking' },
     { ...validUserDto, hobbies: ['Cooking', 12] },
+    { ...validUserDto, hobbies: ['Cooking', ''] },
   ])('should validate user dto', async (dto) => {
     const res = await request(server)
       .post('/api/users')
