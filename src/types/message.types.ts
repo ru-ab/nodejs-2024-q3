@@ -1,13 +1,23 @@
-import { Message } from '../router';
+import { Message } from '../messageServer';
+import { UserDto } from './user.types';
 
-export type HandlerDataTypes = {
-  reg: RegisterMessage;
+export type RequestTypes = {
+  reg: RegisterRequest;
 };
 
-export interface RegisterMessage extends Message<HandlerDataTypes> {
+export interface RegisterRequest extends Message<RequestTypes> {
   type: 'reg';
-  data: {
-    name: string;
-    password: string;
-  };
+  data: UserDto;
+}
+
+export type RegisterResponseData = {
+  name: string;
+  index: number | string;
+  error: boolean;
+  errorText: string;
+};
+
+export interface RegisterResponse extends Message<RequestTypes> {
+  type: 'reg';
+  data: RegisterResponseData;
 }
