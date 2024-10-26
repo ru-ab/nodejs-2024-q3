@@ -3,6 +3,7 @@ import { UserDto } from './user.types';
 
 export type RequestTypes = {
   reg: RegisterRequest;
+  create_room: CreateRoomRequest;
 };
 
 export interface RegisterRequest extends Message<RequestTypes> {
@@ -20,4 +21,9 @@ export type RegisterResponseData = {
 export interface RegisterResponse extends Message<RequestTypes> {
   type: 'reg';
   data: RegisterResponseData;
+}
+
+export interface CreateRoomRequest extends Message<RequestTypes> {
+  type: 'create_room';
+  data: '';
 }
