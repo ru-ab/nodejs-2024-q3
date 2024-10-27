@@ -40,8 +40,21 @@ export class UserController implements IUserController {
       });
     }
 
+    const registered = ctx.registerConnection(user);
+    if (!registered) {
+      return ctx.reply({
+        id: 0,
+        type: 'reg',
+        data: {
+          index: 0,
+          name: '',
+          error: true,
+          errorText: 'User already connected.',
+        },
+      });
+    }
+
     ctx.session.user = user;
-    ctx.registerConnection(user);
     console.log(
       `Received command: "reg", result: User ${user.name}[${user.index}] logged in.`
     );

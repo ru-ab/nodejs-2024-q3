@@ -17,7 +17,7 @@ export type Context<S> = {
   broadcast: SendMessage;
   reply: SendMessage;
   sendTo: SendMessageTo;
-  registerConnection: (user: User) => void;
+  registerConnection: (user: User) => boolean;
 };
 
 type Connection = {
@@ -84,7 +84,16 @@ export class MessageServer<T, S> {
   private createContext(ws: WebSocket): Context<S> {
     return {
       session: {} as S,
-      registerConnection: (user) => this.connections.push({ user, ws }),
+      registerConnection: (user) => {
+        const connection = this.connections.find(
+          (connection) => connection.user.index === user.index
+        );
+        if (connection) {
+          return false;
+        }
+        this.connections.push({ user, ws });
+        return true;
+      },
       broadcast: (message) =>
         this.connections.forEach((connection) =>
           connection.ws.send(this.stringifyData(message as Message))
