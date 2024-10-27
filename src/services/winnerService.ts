@@ -21,6 +21,8 @@ export class WinnerService implements IWinnerService {
     } else {
       winner.wins += 1;
     }
+
+    this.winners.sort((a, b) => b.wins - a.wins);
   }
 
   public broadcastUpdateWinnersMessage(ctx: Context<Session>): void {
