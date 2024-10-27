@@ -3,6 +3,7 @@ import { Game, Ship } from '../types/game.types';
 export interface IGameService {
   createGame: (userIds: number[]) => Game;
   addShips: (gameId: number, playerId: number, ships: Ship[]) => Game | null;
+  startGame: (gameId: number) => Game | null;
 }
 
 export class GameService implements IGameService {
@@ -12,6 +13,7 @@ export class GameService implements IGameService {
 
   createGame(playerIds: number[]): Game {
     const newGame: Game = {
+      currentPlayer: 0,
       gameId: this.nextGameId++,
       players: playerIds.map((userId) => ({ index: userId, ships: [] })),
     };
@@ -33,6 +35,17 @@ export class GameService implements IGameService {
     }
 
     player.ships = ships;
+    return game;
+  }
+
+  startGame(gameId: number): Game | null {
+    const game = this.games.find((game) => game.gameId === gameId);
+    if (!game) {
+      return null;
+    }
+
+    game.currentPlayer = game.players[0].index;
+
     return game;
   }
 }

@@ -56,6 +56,8 @@ export class RoomController implements IRoomController {
       return;
     }
 
+    this.roomService.broadcastUpdateRoomMessage(ctx);
+
     console.log(
       `Received command: "add_user_to_room", result: User ${user.name}[${user.index}] added to Room[${room.roomId}].`
     );

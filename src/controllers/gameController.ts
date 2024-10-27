@@ -1,6 +1,10 @@
 import { Context } from '../messageServer';
 import { IGameService } from '../services/gameService';
-import { AddShipsRequest, StartGameResponse } from '../types/message.types';
+import {
+  AddShipsRequest,
+  StartGameResponse,
+  TurnResponse,
+} from '../types/message.types';
 import { Session } from '../types/session.types';
 
 export interface IGameController {
@@ -23,6 +27,8 @@ export class GameController implements IGameController {
     );
 
     if (game.players.every((player) => player.ships.length > 0)) {
+      this.gameService.startGame(game.gameId);
+
       game.players.forEach((player) => {
         const startGameMessage: StartGameResponse = {
           id: 0,
@@ -39,6 +45,15 @@ export class GameController implements IGameController {
       console.log(
         `Sent command: "start_game", result: Game[${game.gameId}] has started.`
       );
+
+      game.players.forEach((player) => {
+        const turnMessage: TurnResponse = {
+          id: 0,
+          type: 'turn',
+          data: { currentPlayer: game.currentPlayer },
+        };
+        ctx.sendTo(player.index, turnMessage);
+      });
     }
   };
 }

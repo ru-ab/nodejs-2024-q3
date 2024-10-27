@@ -15,6 +15,7 @@ export type ResponseTypes = {
   update_room: UpdateRoomResponse;
   create_game: CreateGameResponse;
   start_game: StartGameResponse;
+  turn: TurnResponse;
 };
 
 export interface RegisterRequest extends Message<RequestTypes> {
@@ -73,5 +74,12 @@ export interface StartGameResponse extends Message<ResponseTypes> {
   data: {
     ships: Ship[];
     currentPlayerIndex: number;
+  };
+}
+
+export interface TurnResponse extends Message<ResponseTypes> {
+  type: 'turn';
+  data: {
+    currentPlayer: number;
   };
 }

@@ -15,5 +15,6 @@ export type Player = {
 
 export type Game = {
   gameId: number;
+  currentPlayer: number;
   players: Player[];
 };
