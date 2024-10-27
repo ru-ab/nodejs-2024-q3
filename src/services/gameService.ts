@@ -8,6 +8,7 @@ import {
 
 export interface IGameService {
   createGame: (userIds: number[]) => Game;
+  finishGame: (gameId: number) => void;
   getGame: (gameId: number) => Game | null;
   addShips: (gameId: number, playerId: number, ships: Ship[]) => Game | null;
   startGame: (gameId: number) => Game | null;
@@ -84,6 +85,10 @@ export class GameService implements IGameService {
     game.currentPlayer = game.players[0].index;
 
     return game;
+  }
+
+  public finishGame(gameId: number): void {
+    this.games = this.games.filter((game) => game.gameId !== gameId);
   }
 
   public attack(attack: Attack): AttackResult[] | null {

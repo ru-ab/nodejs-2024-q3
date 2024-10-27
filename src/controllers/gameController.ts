@@ -115,6 +115,8 @@ export class GameController implements IGameController {
       }
       this.winnerService.updateWinner(user.name);
       this.winnerService.broadcastUpdateWinnersMessage(ctx);
+
+      this.gameService.finishGame(game.gameId);
     } else {
       this.sendTurn(game, ctx);
     }
