@@ -20,5 +20,6 @@ export class Server {
 
     router.use('add_ships', gameController.addShips);
     router.use('attack', gameController.attack);
+    router.use('randomAttack', gameController.randomAttack);
   }
 }

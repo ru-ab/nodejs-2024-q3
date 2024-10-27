@@ -8,6 +8,7 @@ import {
   AttackRequest,
   AttackResponse,
   FinishResponse,
+  RandomAttackRequest,
   StartGameResponse,
   TurnResponse,
 } from '../types/message.types';
@@ -16,6 +17,7 @@ import { Session } from '../types/session.types';
 export interface IGameController {
   addShips: (req: AddShipsRequest, ctx: Context<Session>) => void;
   attack: (req: AttackRequest, ctx: Context<Session>) => void;
+  randomAttack: (req: RandomAttackRequest, ctx: Context<Session>) => void;
 }
 
 export class GameController implements IGameController {
@@ -61,7 +63,7 @@ export class GameController implements IGameController {
     }
   };
 
-  attack = (req: AttackRequest, ctx: Context<Session>): void => {
+  public attack = (req: AttackRequest, ctx: Context<Session>): void => {
     const attackResults = this.gameService.attack(req.data);
     if (!attackResults) {
       return;
@@ -85,7 +87,7 @@ export class GameController implements IGameController {
     });
 
     console.log(
-      `Received command: "attack", shot: x=${req.data.x} y=${
+      `Received command: "${req.type}", shot: x=${req.data.x} y=${
         req.data.y
       }, result: Player[${req.data.indexPlayer}] ${
         attackResults[0].status === 'miss'
@@ -116,6 +118,33 @@ export class GameController implements IGameController {
     } else {
       this.sendTurn(game, ctx);
     }
+  };
+
+  public randomAttack = (
+    req: RandomAttackRequest,
+    ctx: Context<Session>
+  ): void => {
+    const target = this.gameService.getRandomTargetPosition(
+      req.data.gameId,
+      req.data.indexPlayer
+    );
+    if (!target) {
+      return;
+    }
+
+    this.attack(
+      {
+        id: 0,
+        type: 'randomAttack' as 'attack',
+        data: {
+          gameId: req.data.gameId,
+          indexPlayer: req.data.indexPlayer,
+          x: target.x,
+          y: target.y,
+        },
+      },
+      ctx
+    );
   };
 
   private sendTurn(game: Game, ctx: Context<Session>) {

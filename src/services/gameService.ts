@@ -13,6 +13,10 @@ export interface IGameService {
   startGame: (gameId: number) => Game | null;
   attack: (attack: Attack) => AttackResult[] | null;
   isEndGame: (gameId: number, playerId: number) => boolean | null;
+  getRandomTargetPosition: (
+    gameId: number,
+    playerId: number
+  ) => Position | null;
 }
 
 const shipLengths = {
@@ -27,7 +31,7 @@ export class GameService implements IGameService {
 
   private games: Game[] = [];
 
-  createGame(playerIds: number[]): Game {
+  public createGame(playerIds: number[]): Game {
     const newGame: Game = {
       currentPlayer: 0,
       gameId: this.nextGameId++,
@@ -43,7 +47,7 @@ export class GameService implements IGameService {
     return newGame;
   }
 
-  getGame(gameId: number): Game | null {
+  public getGame(gameId: number): Game | null {
     const game = this.games.find((game) => game.gameId === gameId);
     if (!game) {
       return null;
@@ -52,7 +56,11 @@ export class GameService implements IGameService {
     return game;
   }
 
-  addShips(gameId: number, playerId: number, ships: Ship[]): Game | null {
+  public addShips(
+    gameId: number,
+    playerId: number,
+    ships: Ship[]
+  ): Game | null {
     const game = this.games.find((game) => game.gameId === gameId);
     if (!game) {
       return null;
@@ -67,7 +75,7 @@ export class GameService implements IGameService {
     return game;
   }
 
-  startGame(gameId: number): Game | null {
+  public startGame(gameId: number): Game | null {
     const game = this.games.find((game) => game.gameId === gameId);
     if (!game) {
       return null;
@@ -78,7 +86,7 @@ export class GameService implements IGameService {
     return game;
   }
 
-  attack(attack: Attack): AttackResult[] | null {
+  public attack(attack: Attack): AttackResult[] | null {
     const game = this.games.find((game) => game.gameId === attack.gameId);
     if (!game) {
       return null;
@@ -205,7 +213,7 @@ export class GameService implements IGameService {
     ];
   }
 
-  isEndGame(gameId: number, playerId: number): boolean | null {
+  public isEndGame(gameId: number, playerId: number): boolean | null {
     const game = this.games.find((game) => game.gameId === gameId);
     if (!game) {
       return null;
@@ -219,5 +227,33 @@ export class GameService implements IGameService {
     return !enemy.ships.some(
       (ship) => (ship?.damages ?? 0) < shipLengths[ship.type]
     );
+  }
+
+  public getRandomTargetPosition(
+    gameId: number,
+    playerId: number
+  ): Position | null {
+    const game = this.games.find((game) => game.gameId === gameId);
+    if (!game) {
+      return null;
+    }
+
+    const player = game.players.find((player) => player.index === playerId);
+    if (!player) {
+      return null;
+    }
+
+    const target: Position = {
+      x: 0,
+      y: 0,
+    };
+    do {
+      target.x = Math.floor(Math.random() * 10);
+      target.y = Math.floor(Math.random() * 10);
+    } while (
+      player.shots.some((shot) => shot.x === target.x && shot.y === target.y)
+    );
+
+    return target;
   }
 }

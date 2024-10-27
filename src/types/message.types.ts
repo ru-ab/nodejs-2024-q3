@@ -10,6 +10,7 @@ export type RequestTypes = {
   add_user_to_room: AddUserToRoomRequest;
   add_ships: AddShipsRequest;
   attack: AttackRequest;
+  randomAttack: RandomAttackRequest;
 };
 
 export type ResponseTypes = {
@@ -92,6 +93,14 @@ export interface TurnResponse extends Message<ResponseTypes> {
 export interface AttackRequest extends Message<RequestTypes> {
   type: 'attack';
   data: Attack;
+}
+
+export interface RandomAttackRequest extends Message<RequestTypes> {
+  type: 'randomAttack';
+  data: {
+    gameId: number;
+    indexPlayer: number;
+  };
 }
 
 export interface AttackResponse extends Message<ResponseTypes> {
