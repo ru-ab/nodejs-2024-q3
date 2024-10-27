@@ -32,16 +32,41 @@ export class MessageServer<T, S> {
 
   private connections: Connection[];
 
-  constructor() {
+  constructor(port: number) {
     this.connections = [];
     this.handlers = {} as Handlers<T, S>;
-    this.wss = new WebSocketServer({ port: 3000 });
-
+    this.wss = new WebSocketServer({ port });
     this.wss.on('connection', (ws) => this.handleConnection(ws));
+
+    console.log(`Web Socket Server started on port: ${port}`);
   }
 
   public use<K extends keyof T>(type: K, handler: Handler<T[K], S>) {
     this.handlers[type] = handler;
+  }
+
+  public async terminate() {
+    this.wss.close();
+    this.wss.clients.forEach((socket) => {
+      socket.close();
+    });
+
+    return this.waitForConnectionsToClose();
+  }
+
+  private waitForConnectionsToClose(): Promise<void> {
+    return new Promise((resolve) => {
+      if (this.wss.clients.size === 0) {
+        resolve();
+      } else {
+        const interval = setInterval(() => {
+          if (this.wss.clients.size === 0) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 1000);
+      }
+    });
   }
 
   private handleConnection(ws: WebSocket): void {

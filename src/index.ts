@@ -30,4 +30,12 @@ const gameController = new GameController(
   userService
 );
 
-new Server(userController, roomController, gameController);
+const server = new Server(userController, roomController, gameController);
+
+['SIGINT', 'SIGTERM', 'SIGQUIT'].forEach((signal) =>
+  process.on(signal, async () => {
+    await server.terminate();
+    console.log('Server is shut down.');
+    process.exit();
+  })
+);

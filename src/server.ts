@@ -6,20 +6,26 @@ import { Session } from './types/session.types';
 import { IGameController } from './controllers/gameController';
 
 export class Server {
+  private messageServer: MessageServer<RequestTypes, Session>;
+
   constructor(
     userController: IUserController,
     roomController: IRoomController,
     gameController: IGameController
   ) {
-    const router = new MessageServer<RequestTypes, Session>();
+    this.messageServer = new MessageServer<RequestTypes, Session>(3000);
 
-    router.use('reg', userController.register);
+    this.messageServer.use('reg', userController.register);
 
-    router.use('create_room', roomController.createRoom);
-    router.use('add_user_to_room', roomController.addUserToRoom);
+    this.messageServer.use('create_room', roomController.createRoom);
+    this.messageServer.use('add_user_to_room', roomController.addUserToRoom);
 
-    router.use('add_ships', gameController.addShips);
-    router.use('attack', gameController.attack);
-    router.use('randomAttack', gameController.randomAttack);
+    this.messageServer.use('add_ships', gameController.addShips);
+    this.messageServer.use('attack', gameController.attack);
+    this.messageServer.use('randomAttack', gameController.randomAttack);
+  }
+
+  public async terminate() {
+    return this.messageServer.terminate();
   }
 }
