@@ -1,7 +1,11 @@
 import { Context } from '../messageServer';
 import { IGameService } from '../services/gameService';
+import { Game } from '../types/game.types';
 import {
   AddShipsRequest,
+  AttackRequest,
+  AttackResponse,
+  FinishResponse,
   StartGameResponse,
   TurnResponse,
 } from '../types/message.types';
@@ -9,6 +13,7 @@ import { Session } from '../types/session.types';
 
 export interface IGameController {
   addShips: (req: AddShipsRequest, ctx: Context<Session>) => void;
+  attack: (req: AttackRequest, ctx: Context<Session>) => void;
 }
 
 export class GameController implements IGameController {
@@ -46,14 +51,68 @@ export class GameController implements IGameController {
         `Sent command: "start_game", result: Game[${game.gameId}] has started.`
       );
 
-      game.players.forEach((player) => {
-        const turnMessage: TurnResponse = {
-          id: 0,
-          type: 'turn',
-          data: { currentPlayer: game.currentPlayer },
-        };
-        ctx.sendTo(player.index, turnMessage);
-      });
+      this.sendTurn(game, ctx);
     }
   };
+
+  attack = (req: AttackRequest, ctx: Context<Session>): void => {
+    const attackResults = this.gameService.attack(req.data);
+    if (!attackResults) {
+      return;
+    }
+
+    const game = this.gameService.getGame(req.data.gameId);
+    if (!game) {
+      return;
+    }
+
+    attackResults.forEach((attackResult) => {
+      game.players.forEach((player) => {
+        const attackResponse: AttackResponse = {
+          id: 0,
+          type: 'attack',
+          data: attackResult,
+        };
+
+        ctx.sendTo(player.index, attackResponse);
+      });
+    });
+
+    console.log(
+      `Received command: "attack", shot: x=${req.data.x} y=${
+        req.data.y
+      }, result: Player[${req.data.indexPlayer}] ${
+        attackResults[0].status === 'miss'
+          ? 'missed'
+          : attackResults[0].status === 'shot'
+          ? 'hit enemy ship'
+          : 'killed enemy ship'
+      }.`
+    );
+
+    if (this.gameService.isEndGame(req.data.gameId, req.data.indexPlayer)) {
+      const finishMessage: FinishResponse = {
+        id: 0,
+        type: 'finish',
+        data: {
+          winPlayer: req.data.indexPlayer,
+        },
+      };
+
+      game.players.forEach((player) => ctx.sendTo(player.index, finishMessage));
+    } else {
+      this.sendTurn(game, ctx);
+    }
+  };
+
+  private sendTurn(game: Game, ctx: Context<Session>) {
+    game.players.forEach((player) => {
+      const turnMessage: TurnResponse = {
+        id: 0,
+        type: 'turn',
+        data: { currentPlayer: game.currentPlayer },
+      };
+      ctx.sendTo(player.index, turnMessage);
+    });
+  }
 }

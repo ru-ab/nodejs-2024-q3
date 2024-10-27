@@ -19,5 +19,6 @@ export class Server {
     router.use('add_user_to_room', roomController.addUserToRoom);
 
     router.use('add_ships', gameController.addShips);
+    router.use('attack', gameController.attack);
   }
 }

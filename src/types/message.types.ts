@@ -1,6 +1,6 @@
 import { Message } from '../messageServer';
+import { Attack, AttackResult, Ship } from './game.types';
 import { Room } from './room.types';
-import { Ship } from './game.types';
 import { UserDto } from './user.types';
 
 export type RequestTypes = {
@@ -8,6 +8,7 @@ export type RequestTypes = {
   create_room: CreateRoomRequest;
   add_user_to_room: AddUserToRoomRequest;
   add_ships: AddShipsRequest;
+  attack: AttackRequest;
 };
 
 export type ResponseTypes = {
@@ -16,6 +17,8 @@ export type ResponseTypes = {
   create_game: CreateGameResponse;
   start_game: StartGameResponse;
   turn: TurnResponse;
+  attack: AttackResponse;
+  finish: FinishResponse;
 };
 
 export interface RegisterRequest extends Message<RequestTypes> {
@@ -81,5 +84,22 @@ export interface TurnResponse extends Message<ResponseTypes> {
   type: 'turn';
   data: {
     currentPlayer: number;
+  };
+}
+
+export interface AttackRequest extends Message<RequestTypes> {
+  type: 'attack';
+  data: Attack;
+}
+
+export interface AttackResponse extends Message<ResponseTypes> {
+  type: 'attack';
+  data: AttackResult;
+}
+
+export interface FinishResponse extends Message<ResponseTypes> {
+  type: 'finish';
+  data: {
+    winPlayer: number;
   };
 }
