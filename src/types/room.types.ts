@@ -4,7 +4,6 @@ export type RoomUser = {
 };
 
 export type Room = {
-  id: number;
-  user1: RoomUser;
-  user2: RoomUser | null;
+  roomId: number;
+  roomUsers: RoomUser[];
 };

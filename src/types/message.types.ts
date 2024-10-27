@@ -1,4 +1,5 @@
 import { Message } from '../messageServer';
+import { Room } from './room.types';
 import { UserDto } from './user.types';
 
 export type RequestTypes = {
@@ -35,13 +36,5 @@ export interface CreateRoomRequest extends Message<RequestTypes> {
 
 export interface UpdateRoomResponse extends Message<ResponseTypes> {
   type: 'update_room';
-  data: {
-    roomId: number;
-    roomUsers: [
-      {
-        name: string;
-        index: number;
-      }
-    ];
-  }[];
+  data: Room[];
 }

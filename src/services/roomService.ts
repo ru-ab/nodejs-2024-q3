@@ -2,6 +2,7 @@ import { Room, RoomUser } from '../types/room.types';
 
 export interface IRoomService {
   createRoom: (user: RoomUser) => Room;
+  getAvailableRooms: () => Room[];
   addUserToRoom: (userId: number, roomId: number) => void;
 }
 
@@ -10,17 +11,25 @@ export class RoomService implements IRoomService {
 
   private rooms: { [id: number]: Room } = {};
 
+  private availableRooms: Room[] = [];
+
   createRoom({ index, name }: RoomUser): Room {
     const newRoom: Room = {
-      id: this.nextRoomId++,
-      user1: {
-        index,
-        name,
-      },
-      user2: null,
+      roomId: this.nextRoomId++,
+      roomUsers: [
+        {
+          index,
+          name,
+        },
+      ],
     };
-    this.rooms[newRoom.id] = newRoom;
+    this.rooms[newRoom.roomId] = newRoom;
+    this.availableRooms.push(newRoom);
     return newRoom;
+  }
+
+  getAvailableRooms(): Room[] {
+    return this.availableRooms;
   }
 
   addUserToRoom(userId: number, roomId: number): void {}
