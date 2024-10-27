@@ -1,17 +1,20 @@
 import { Message } from '../messageServer';
 import { Room } from './room.types';
+import { Ship } from './game.types';
 import { UserDto } from './user.types';
 
 export type RequestTypes = {
   reg: RegisterRequest;
   create_room: CreateRoomRequest;
   add_user_to_room: AddUserToRoomRequest;
+  add_ships: AddShipsRequest;
 };
 
 export type ResponseTypes = {
   reg: RegisterResponse;
   update_room: UpdateRoomResponse;
   create_game: CreateGameResponse;
+  start_game: StartGameResponse;
 };
 
 export interface RegisterRequest extends Message<RequestTypes> {
@@ -53,5 +56,22 @@ export interface CreateGameResponse extends Message<ResponseTypes> {
   data: {
     idGame: number;
     idPlayer: number;
+  };
+}
+
+export interface AddShipsRequest extends Message<RequestTypes> {
+  type: 'add_ships';
+  data: {
+    gameId: number;
+    ships: Ship[];
+    indexPlayer: number;
+  };
+}
+
+export interface StartGameResponse extends Message<ResponseTypes> {
+  type: 'start_game';
+  data: {
+    ships: Ship[];
+    currentPlayerIndex: number;
   };
 }

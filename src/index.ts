@@ -1,7 +1,9 @@
-import { UserController } from './controllers/userController.js';
+import { GameController } from './controllers/gameController.js';
 import { RoomController } from './controllers/roomController.js';
+import { UserController } from './controllers/userController.js';
 import { httpServer } from './http_server/index.js';
 import { Server } from './server';
+import { GameService } from './services/gameService.js';
 import { RoomService } from './services/roomService.js';
 import { UserService } from './services/userService.js';
 
@@ -12,8 +14,10 @@ httpServer.listen(HTTP_PORT);
 
 const userService = new UserService();
 const roomService = new RoomService();
+const gameService = new GameService();
 
 const userController = new UserController(userService, roomService);
-const roomController = new RoomController(roomService);
+const roomController = new RoomController(roomService, gameService);
+const gameController = new GameController(gameService);
 
-new Server(userController, roomController);
+new Server(userController, roomController, gameController);

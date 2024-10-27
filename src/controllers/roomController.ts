@@ -1,4 +1,5 @@
 import { Context } from '../messageServer';
+import { IGameService } from '../services/gameService';
 import { IRoomService } from '../services/roomService';
 import {
   AddUserToRoomRequest,
@@ -14,7 +15,10 @@ export interface IRoomController {
 }
 
 export class RoomController implements IRoomController {
-  constructor(private readonly roomService: IRoomService) {}
+  constructor(
+    private readonly roomService: IRoomService,
+    private readonly gameService: IGameService
+  ) {}
 
   createRoom = (req: CreateRoomRequest, ctx: Context<Session>): void => {
     const user = ctx.session.user;
@@ -56,23 +60,27 @@ export class RoomController implements IRoomController {
       `Received command: "add_user_to_room", result: User ${user.name}[${user.index}] added to Room[${room.roomId}].`
     );
 
+    const game = this.gameService.createGame(
+      room.roomUsers.map((roomUser) => roomUser.index)
+    );
+
     const createGameResponse: Omit<CreateGameResponse, 'data'> = {
       id: 0,
       type: 'create_game',
     };
 
-    room.roomUsers.forEach((roomUser) =>
-      ctx.sendTo(roomUser.index, {
+    game.players.forEach((player) =>
+      ctx.sendTo(player.index, {
         ...createGameResponse,
         data: {
-          idGame: 0,
-          idPlayer: roomUser.index,
+          idGame: game.gameId,
+          idPlayer: player.index,
         },
       })
     );
 
     console.log(
-      `Sent command: "create_game", result: Game[${0}] started with users: ${room.roomUsers.map(
+      `Sent command: "create_game", result: Game[${0}] has created with users: ${room.roomUsers.map(
         (roomUser) => `${roomUser.name}[${roomUser.index}]`
       )}.`
     );
