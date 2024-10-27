@@ -1,4 +1,4 @@
-import { type IRegisterController } from './controllers/registerController';
+import { type IUserController } from './controllers/userController';
 import { IRoomController } from './controllers/roomController';
 import { MessageServer } from './messageServer';
 import { RequestTypes } from './types/message.types';
@@ -6,12 +6,12 @@ import { Session } from './types/session.types';
 
 export class Server {
   constructor(
-    registerController: IRegisterController,
+    userController: IUserController,
     roomController: IRoomController
   ) {
     const router = new MessageServer<RequestTypes, Session>();
 
-    router.use('reg', registerController.register);
+    router.use('reg', userController.register);
     router.use('create_room', roomController.createRoom);
     router.use('add_user_to_room', roomController.addUserToRoom);
   }

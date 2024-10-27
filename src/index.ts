@@ -1,4 +1,4 @@
-import { RegisterController } from './controllers/registerController.js';
+import { UserController } from './controllers/userController.js';
 import { RoomController } from './controllers/roomController.js';
 import { httpServer } from './http_server/index.js';
 import { Server } from './server';
@@ -13,7 +13,7 @@ httpServer.listen(HTTP_PORT);
 const userService = new UserService();
 const roomService = new RoomService();
 
-const registerController = new RegisterController(userService, roomService);
+const userController = new UserController(userService, roomService);
 const roomController = new RoomController(roomService);
 
-new Server(registerController, roomController);
+new Server(userController, roomController);

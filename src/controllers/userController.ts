@@ -1,32 +1,20 @@
-import { Context, SendMessage } from '../messageServer';
+import { Context } from '../messageServer';
 import { RoomService } from '../services/roomService';
 import { IUserService } from '../services/userService';
-import {
-  RegisterRequest,
-  RegisterResponse,
-  RegisterResponseData,
-} from '../types/message.types';
+import { RegisterRequest } from '../types/message.types';
 import { Session } from '../types/session.types';
 
-export interface IRegisterController {
+export interface IUserController {
   register: (req: RegisterRequest, ctx: Context<Session>) => void;
 }
 
-export class RegisterController implements IRegisterController {
+export class UserController implements IUserController {
   constructor(
     private readonly userService: IUserService,
     private readonly roomService: RoomService
   ) {}
 
   register = (req: RegisterRequest, ctx: Context<Session>) => {
-    function createResponse(data: RegisterResponseData): RegisterResponse {
-      return {
-        id: 0,
-        type: 'reg',
-        data,
-      };
-    }
-
     const { name, password } = req.data;
 
     let user = this.userService.getUserByName(name);
@@ -38,14 +26,16 @@ export class RegisterController implements IRegisterController {
       console.log(
         `Received command: "reg", result: Invalid password for User ${user.name}[${user.index}].`
       );
-      return ctx.reply(
-        createResponse({
+      return ctx.reply({
+        id: 0,
+        type: 'reg',
+        data: {
           index: 0,
           name: '',
           error: true,
           errorText: 'Invalid password.',
-        })
-      );
+        },
+      });
     }
 
     ctx.session.user = user;
@@ -56,13 +46,15 @@ export class RegisterController implements IRegisterController {
 
     this.roomService.broadcastUpdateRoomMessage(ctx);
 
-    return ctx.reply(
-      createResponse({
+    return ctx.reply({
+      id: 0,
+      type: 'reg',
+      data: {
         index: user.index,
         name: user.name,
         error: false,
         errorText: '',
-      })
-    );
+      },
+    });
   };
 }

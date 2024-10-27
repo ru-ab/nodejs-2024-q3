@@ -73,8 +73,8 @@ export class RoomController implements IRoomController {
 
     console.log(
       `Sent command: "create_game", result: Game[${0}] started with users: ${room.roomUsers.map(
-        (roomUser) => `${roomUser.name}[${roomUser.index}`
-      )}].`
+        (roomUser) => `${roomUser.name}[${roomUser.index}]`
+      )}.`
     );
   };
 }
