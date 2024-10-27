@@ -1,12 +1,12 @@
-import { GameController } from './controllers/gameController.js';
-import { RoomController } from './controllers/roomController.js';
-import { UserController } from './controllers/userController.js';
-import { httpServer } from './http_server/index.js';
+import { httpServer } from '../http_server/index.js';
+import { GameController } from './controllers/gameController';
+import { RoomController } from './controllers/roomController';
+import { UserController } from './controllers/userController';
 import { Server } from './server';
-import { GameService } from './services/gameService.js';
-import { RoomService } from './services/roomService.js';
-import { UserService } from './services/userService.js';
-import { WinnerService } from './services/winnerService.js';
+import { GameService } from './services/gameService';
+import { RoomService } from './services/roomService';
+import { UserService } from './services/userService';
+import { WinnerService } from './services/winnerService';
 
 const HTTP_PORT = 8181;
 
