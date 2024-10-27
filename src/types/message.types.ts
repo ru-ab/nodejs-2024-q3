@@ -2,6 +2,7 @@ import { Message } from '../messageServer';
 import { Attack, AttackResult, Ship } from './game.types';
 import { Room } from './room.types';
 import { UserDto } from './user.types';
+import { Winner } from './winner.types';
 
 export type RequestTypes = {
   reg: RegisterRequest;
@@ -19,6 +20,7 @@ export type ResponseTypes = {
   turn: TurnResponse;
   attack: AttackResponse;
   finish: FinishResponse;
+  update_winners: UpdateWinnersResponse;
 };
 
 export interface RegisterRequest extends Message<RequestTypes> {
@@ -102,4 +104,9 @@ export interface FinishResponse extends Message<ResponseTypes> {
   data: {
     winPlayer: number;
   };
+}
+
+export interface UpdateWinnersResponse extends Message<ResponseTypes> {
+  type: 'update_winners';
+  data: Winner[];
 }

@@ -1,6 +1,7 @@
 import { Context } from '../messageServer';
-import { RoomService } from '../services/roomService';
+import { IRoomService } from '../services/roomService';
 import { IUserService } from '../services/userService';
+import { IWinnerService } from '../services/winnerService';
 import { RegisterRequest } from '../types/message.types';
 import { Session } from '../types/session.types';
 
@@ -11,7 +12,8 @@ export interface IUserController {
 export class UserController implements IUserController {
   constructor(
     private readonly userService: IUserService,
-    private readonly roomService: RoomService
+    private readonly roomService: IRoomService,
+    private readonly winnerService: IWinnerService
   ) {}
 
   register = (req: RegisterRequest, ctx: Context<Session>) => {
@@ -45,6 +47,7 @@ export class UserController implements IUserController {
     );
 
     this.roomService.broadcastUpdateRoomMessage(ctx);
+    this.winnerService.broadcastUpdateWinnersMessage(ctx);
 
     return ctx.reply({
       id: 0,

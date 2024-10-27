@@ -1,5 +1,7 @@
 import { Context } from '../messageServer';
 import { IGameService } from '../services/gameService';
+import { IUserService } from '../services/userService';
+import { IWinnerService } from '../services/winnerService';
 import { Game } from '../types/game.types';
 import {
   AddShipsRequest,
@@ -17,7 +19,11 @@ export interface IGameController {
 }
 
 export class GameController implements IGameController {
-  constructor(private readonly gameService: IGameService) {}
+  constructor(
+    private readonly gameService: IGameService,
+    private readonly winnerService: IWinnerService,
+    private readonly userService: IUserService
+  ) {}
 
   public addShips = (req: AddShipsRequest, ctx: Context<Session>): void => {
     const { gameId, indexPlayer, ships } = req.data;
@@ -100,6 +106,13 @@ export class GameController implements IGameController {
       };
 
       game.players.forEach((player) => ctx.sendTo(player.index, finishMessage));
+
+      const user = this.userService.getUser(req.data.indexPlayer);
+      if (!user) {
+        return;
+      }
+      this.winnerService.updateWinner(user.name);
+      this.winnerService.broadcastUpdateWinnersMessage(ctx);
     } else {
       this.sendTurn(game, ctx);
     }

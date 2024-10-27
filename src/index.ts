@@ -6,6 +6,7 @@ import { Server } from './server';
 import { GameService } from './services/gameService.js';
 import { RoomService } from './services/roomService.js';
 import { UserService } from './services/userService.js';
+import { WinnerService } from './services/winnerService.js';
 
 const HTTP_PORT = 8181;
 
@@ -15,9 +16,18 @@ httpServer.listen(HTTP_PORT);
 const userService = new UserService();
 const roomService = new RoomService();
 const gameService = new GameService();
+const winnerService = new WinnerService();
 
-const userController = new UserController(userService, roomService);
+const userController = new UserController(
+  userService,
+  roomService,
+  winnerService
+);
 const roomController = new RoomController(roomService, gameService);
-const gameController = new GameController(gameService);
+const gameController = new GameController(
+  gameService,
+  winnerService,
+  userService
+);
 
 new Server(userController, roomController, gameController);
