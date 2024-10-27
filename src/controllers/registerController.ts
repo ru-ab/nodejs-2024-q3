@@ -1,4 +1,4 @@
-import { Context, SendResponse } from '../messageServer';
+import { Context, SendMessage } from '../messageServer';
 import { IUserService } from '../services/userService';
 import {
   RegisterRequest,
@@ -43,6 +43,7 @@ export class RegisterController implements IRegisterController {
     }
 
     ctx.session.user = user;
+    ctx.registerConnection(user);
     console.log(
       `Received command: "reg", result: User ${user.name}[${user.id}] logged in.`
     );

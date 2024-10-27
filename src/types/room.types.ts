@@ -1,4 +1,4 @@
-type RoomUser = {
+export type RoomUser = {
   index: number;
   name: string;
 };

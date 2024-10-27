@@ -6,6 +6,11 @@ export type RequestTypes = {
   create_room: CreateRoomRequest;
 };
 
+export type ResponseTypes = {
+  reg: RegisterResponse;
+  update_room: UpdateRoomResponse;
+};
+
 export interface RegisterRequest extends Message<RequestTypes> {
   type: 'reg';
   data: UserDto;
@@ -18,7 +23,7 @@ export type RegisterResponseData = {
   errorText: string;
 };
 
-export interface RegisterResponse extends Message<RequestTypes> {
+export interface RegisterResponse extends Message<ResponseTypes> {
   type: 'reg';
   data: RegisterResponseData;
 }
@@ -26,4 +31,17 @@ export interface RegisterResponse extends Message<RequestTypes> {
 export interface CreateRoomRequest extends Message<RequestTypes> {
   type: 'create_room';
   data: '';
+}
+
+export interface UpdateRoomResponse extends Message<ResponseTypes> {
+  type: 'update_room';
+  data: {
+    roomId: number;
+    roomUsers: [
+      {
+        name: string;
+        index: number;
+      }
+    ];
+  }[];
 }

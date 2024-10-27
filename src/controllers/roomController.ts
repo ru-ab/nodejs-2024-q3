@@ -1,6 +1,7 @@
-import { Context, SendResponse } from '../messageServer';
+import { Context, SendMessage } from '../messageServer';
 import { IRoomService } from '../services/roomService';
-import { CreateRoomRequest } from '../types/message.types';
+import { CreateRoomRequest, UpdateRoomResponse } from '../types/message.types';
+import { RoomUser } from '../types/room.types';
 import { Session } from '../types/session.types';
 
 export interface IRoomController {
@@ -16,10 +17,31 @@ export class RoomController implements IRoomController {
       return;
     }
 
-    const room = this.roomService.createRoom(user);
+    const roomUser: RoomUser = {
+      index: user.id,
+      name: user.name,
+    };
+
+    const room = this.roomService.createRoom(roomUser);
+
     this.roomService.addUserToRoom(user.id, room.id);
     console.log(
       `Received command: "create_room", result: Room[${room.id}] created. User ${user.name}[${user.id}] added to the room.`
+    );
+
+    const updateRoomMessage: UpdateRoomResponse = {
+      id: 0,
+      type: 'update_room',
+      data: [
+        {
+          roomId: room.id,
+          roomUsers: [roomUser],
+        },
+      ],
+    };
+    ctx.broadcast(updateRoomMessage);
+    console.log(
+      `Broadcast command: "update_room", result: Room[${room.id}] updated.`
     );
   };
 }

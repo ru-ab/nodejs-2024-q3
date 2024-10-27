@@ -1,6 +1,8 @@
-import { WebSocketServer } from 'ws';
+import WebSocket, { WebSocketServer } from 'ws';
+import { User } from './types/user.types';
 
-export type SendResponse = (data: unknown) => void;
+export type SendMessage = (message: unknown) => void;
+export type SendMessageTo = (message: unknown, userId: number) => void;
 type Handler<T, S> = (data: T, ctx: Context<S>) => void;
 type Handlers<T, S> = { [K in keyof T]: Handler<T[K], S> | undefined };
 
@@ -12,45 +14,95 @@ export interface Message<T = unknown> {
 
 export type Context<S> = {
   session: S;
-  reply: SendResponse;
+  broadcast: SendMessage;
+  reply: SendMessage;
+  sendTo: SendMessageTo;
+  registerConnection: (user: User) => void;
+};
+
+type Connection = {
+  user: User;
+  ws: WebSocket;
 };
 
 export class MessageServer<T, S> {
   private handlers: Handlers<T, S>;
+
   private wss: WebSocketServer;
 
+  private connections: Connection[];
+
   constructor() {
+    this.connections = [];
     this.handlers = {} as Handlers<T, S>;
     this.wss = new WebSocketServer({ port: 3000 });
 
-    this.wss.on('connection', (ws) => {
-      const ctx: Context<S> = {
-        session: {} as S,
-        reply: (res) => ws.send(this.stringifyData(res as Message)),
-      };
-
-      ws.on('error', console.error);
-
-      ws.on('message', (data) => {
-        try {
-          const messageData = this.parseData(data.toString());
-          this.handleMessage(messageData.type, messageData as T[keyof T], ctx);
-        } catch (error) {
-          console.error(error, data.toString());
-        }
-      });
-    });
+    this.wss.on('connection', (ws) => this.handleConnection(ws));
   }
 
   public use<K extends keyof T>(type: K, handler: Handler<T[K], S>) {
     this.handlers[type] = handler;
   }
 
-  private handleMessage<K extends keyof T>(
-    type: K,
-    data: T[K],
-    ctx: Context<S>
-  ) {
+  private handleConnection(ws: WebSocket): void {
+    console.log('New connection established.');
+
+    const ctx: Context<S> = this.createContext(ws);
+
+    ws.on('error', console.error);
+
+    ws.on('message', (data) => this.handleIncomingMessage(data, ctx));
+
+    ws.on('close', () => this.handleConnectionClose(ws));
+  }
+
+  private createContext(ws: WebSocket): Context<S> {
+    return {
+      session: {} as S,
+      registerConnection: (user) => this.connections.push({ user, ws }),
+      broadcast: (message) =>
+        this.connections.forEach((connection) =>
+          connection.ws.send(this.stringifyData(message as Message))
+        ),
+      sendTo: (message, userId) => {
+        const receiver = this.connections.find(
+          (connection) => connection.user.id === userId
+        );
+        if (receiver) {
+          receiver.ws.send(this.stringifyData(message as Message));
+        }
+      },
+      reply: (message) => ws.send(this.stringifyData(message as Message)),
+    };
+  }
+
+  private handleIncomingMessage(data: WebSocket.RawData, ctx: Context<S>) {
+    try {
+      const messageData = this.parseData(data.toString());
+      this.callHandler(messageData.type, messageData as T[keyof T], ctx);
+    } catch (error) {
+      console.error(error, data.toString());
+    }
+  }
+
+  private handleConnectionClose(ws: WebSocket) {
+    const connection = this.connections.find(
+      (connection) => connection.ws === ws
+    );
+    if (!connection) {
+      console.log('Connection closed.');
+      return;
+    }
+
+    console.log(
+      `Connection ${connection.user.name}[${connection.user.id}] closed.`
+    );
+    this.connections = this.connections.filter(
+      (connection) => connection.ws !== ws
+    );
+  }
+
+  private callHandler<K extends keyof T>(type: K, data: T[K], ctx: Context<S>) {
     this.handlers[type]?.(data, ctx);
   }
 
