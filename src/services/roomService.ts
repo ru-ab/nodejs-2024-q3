@@ -5,7 +5,6 @@ import { Session } from '../types/session.types';
 
 export interface IRoomService {
   createRoom: (user: RoomUser) => Room;
-  getRoom: (roomId: number) => Room | null;
   getAvailableRooms: () => Room[];
   addUserToRoom: (user: RoomUser, roomId: number) => Room | null;
   broadcastUpdateRoomMessage: (ctx: Context<Session>) => void;
@@ -14,8 +13,6 @@ export interface IRoomService {
 export class RoomService implements IRoomService {
   private nextRoomId: number = 1;
 
-  private rooms: { [id: number]: Room } = {};
-
   private availableRooms: Room[] = [];
 
   createRoom(roomUser: RoomUser): Room {
@@ -23,18 +20,8 @@ export class RoomService implements IRoomService {
       roomId: this.nextRoomId++,
       roomUsers: [roomUser],
     };
-    this.rooms[newRoom.roomId] = newRoom;
     this.availableRooms.push(newRoom);
     return newRoom;
-  }
-
-  getRoom(roomId: number): Room | null {
-    const room = this.rooms[roomId];
-    if (!room) {
-      return null;
-    }
-
-    return room;
   }
 
   getAvailableRooms(): Room[] {
