@@ -11,9 +11,9 @@ console.log(`Start static http server on the ${HTTP_PORT} port!`);
 httpServer.listen(HTTP_PORT);
 
 const userService = new UserService();
-const registerController = new RegisterController(userService);
-
 const roomService = new RoomService();
+
+const registerController = new RegisterController(userService, roomService);
 const roomController = new RoomController(roomService);
 
 new Server(registerController, roomController);

@@ -13,5 +13,6 @@ export class Server {
 
     router.use('reg', registerController.register);
     router.use('create_room', roomController.createRoom);
+    router.use('add_user_to_room', roomController.addUserToRoom);
   }
 }

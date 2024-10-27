@@ -1,7 +1,7 @@
 export type User = {
-  id: number;
+  index: number;
   name: string;
   password: string;
 };
 
-export type UserDto = Omit<User, 'id'>;
+export type UserDto = Omit<User, 'index'>;

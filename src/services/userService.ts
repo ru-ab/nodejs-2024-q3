@@ -20,8 +20,8 @@ export class UserService implements IUserService {
   }
 
   createUser(name: string, password: string): User {
-    const newUser = {
-      id: this.nextUserId++,
+    const newUser: User = {
+      index: this.nextUserId++,
       name,
       password,
     };

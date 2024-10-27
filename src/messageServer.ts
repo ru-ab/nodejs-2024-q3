@@ -2,7 +2,7 @@ import WebSocket, { WebSocketServer } from 'ws';
 import { User } from './types/user.types';
 
 export type SendMessage = (message: unknown) => void;
-export type SendMessageTo = (message: unknown, userId: number) => void;
+export type SendMessageTo = (userId: number, message: unknown) => void;
 type Handler<T, S> = (data: T, ctx: Context<S>) => void;
 type Handlers<T, S> = { [K in keyof T]: Handler<T[K], S> | undefined };
 
@@ -64,9 +64,9 @@ export class MessageServer<T, S> {
         this.connections.forEach((connection) =>
           connection.ws.send(this.stringifyData(message as Message))
         ),
-      sendTo: (message, userId) => {
+      sendTo: (userId, message) => {
         const receiver = this.connections.find(
-          (connection) => connection.user.id === userId
+          (connection) => connection.user.index === userId
         );
         if (receiver) {
           receiver.ws.send(this.stringifyData(message as Message));
@@ -95,7 +95,7 @@ export class MessageServer<T, S> {
     }
 
     console.log(
-      `Connection ${connection.user.name}[${connection.user.id}] closed.`
+      `Connection ${connection.user.name}[${connection.user.index}] closed.`
     );
     this.connections = this.connections.filter(
       (connection) => connection.ws !== ws

@@ -5,11 +5,13 @@ import { UserDto } from './user.types';
 export type RequestTypes = {
   reg: RegisterRequest;
   create_room: CreateRoomRequest;
+  add_user_to_room: AddUserToRoomRequest;
 };
 
 export type ResponseTypes = {
   reg: RegisterResponse;
   update_room: UpdateRoomResponse;
+  create_game: CreateGameResponse;
 };
 
 export interface RegisterRequest extends Message<RequestTypes> {
@@ -37,4 +39,19 @@ export interface CreateRoomRequest extends Message<RequestTypes> {
 export interface UpdateRoomResponse extends Message<ResponseTypes> {
   type: 'update_room';
   data: Room[];
+}
+
+export interface AddUserToRoomRequest extends Message<RequestTypes> {
+  type: 'add_user_to_room';
+  data: {
+    indexRoom: number;
+  };
+}
+
+export interface CreateGameResponse extends Message<ResponseTypes> {
+  type: 'create_game';
+  data: {
+    idGame: number;
+    idPlayer: number;
+  };
 }

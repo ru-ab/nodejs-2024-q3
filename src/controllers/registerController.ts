@@ -1,4 +1,5 @@
 import { Context, SendMessage } from '../messageServer';
+import { RoomService } from '../services/roomService';
 import { IUserService } from '../services/userService';
 import {
   RegisterRequest,
@@ -12,7 +13,10 @@ export interface IRegisterController {
 }
 
 export class RegisterController implements IRegisterController {
-  constructor(private readonly userService: IUserService) {}
+  constructor(
+    private readonly userService: IUserService,
+    private readonly roomService: RoomService
+  ) {}
 
   register = (req: RegisterRequest, ctx: Context<Session>) => {
     function createResponse(data: RegisterResponseData): RegisterResponse {
@@ -31,7 +35,9 @@ export class RegisterController implements IRegisterController {
     }
 
     if (!this.userService.isPasswordValid(name, password)) {
-      console.log('Received command: "reg", result: Invalid password.');
+      console.log(
+        `Received command: "reg", result: Invalid password for User ${user.name}[${user.index}].`
+      );
       return ctx.reply(
         createResponse({
           index: 0,
@@ -45,11 +51,14 @@ export class RegisterController implements IRegisterController {
     ctx.session.user = user;
     ctx.registerConnection(user);
     console.log(
-      `Received command: "reg", result: User ${user.name}[${user.id}] logged in.`
+      `Received command: "reg", result: User ${user.name}[${user.index}] logged in.`
     );
+
+    this.roomService.broadcastUpdateRoomMessage(ctx);
+
     return ctx.reply(
       createResponse({
-        index: user.id,
+        index: user.index,
         name: user.name,
         error: false,
         errorText: '',

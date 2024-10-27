@@ -1,9 +1,14 @@
+import { Context } from '../messageServer';
+import { UpdateRoomResponse } from '../types/message.types';
 import { Room, RoomUser } from '../types/room.types';
+import { Session } from '../types/session.types';
 
 export interface IRoomService {
   createRoom: (user: RoomUser) => Room;
+  getRoom: (roomId: number) => Room | null;
   getAvailableRooms: () => Room[];
-  addUserToRoom: (userId: number, roomId: number) => void;
+  addUserToRoom: (user: RoomUser, roomId: number) => Room | null;
+  broadcastUpdateRoomMessage: (ctx: Context<Session>) => void;
 }
 
 export class RoomService implements IRoomService {
@@ -13,24 +18,57 @@ export class RoomService implements IRoomService {
 
   private availableRooms: Room[] = [];
 
-  createRoom({ index, name }: RoomUser): Room {
+  createRoom(roomUser: RoomUser): Room {
     const newRoom: Room = {
       roomId: this.nextRoomId++,
-      roomUsers: [
-        {
-          index,
-          name,
-        },
-      ],
+      roomUsers: [roomUser],
     };
     this.rooms[newRoom.roomId] = newRoom;
     this.availableRooms.push(newRoom);
     return newRoom;
   }
 
+  getRoom(roomId: number): Room | null {
+    const room = this.rooms[roomId];
+    if (!room) {
+      return null;
+    }
+
+    return room;
+  }
+
   getAvailableRooms(): Room[] {
     return this.availableRooms;
   }
 
-  addUserToRoom(userId: number, roomId: number): void {}
+  addUserToRoom(user: RoomUser, roomId: number): Room | null {
+    const availableRoom = this.availableRooms.find(
+      (room) => room.roomId === roomId
+    );
+    if (
+      !availableRoom ||
+      availableRoom.roomUsers.some((roomUser) => roomUser.index === user.index)
+    ) {
+      return null;
+    }
+
+    availableRoom.roomUsers.push(user);
+    this.availableRooms = this.availableRooms.filter(
+      (room) => room.roomId !== availableRoom.roomId
+    );
+
+    return availableRoom;
+  }
+
+  broadcastUpdateRoomMessage(ctx: Context<Session>): void {
+    const updateRoomMessage: UpdateRoomResponse = {
+      id: 0,
+      type: 'update_room',
+      data: this.availableRooms,
+    };
+    ctx.broadcast(updateRoomMessage);
+    console.log(
+      `Broadcast command: "update_room" with list of available rooms.`
+    );
+  }
 }
