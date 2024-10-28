@@ -8,6 +8,7 @@ export interface IRoomService {
   getAvailableRooms: () => Room[];
   addUserToRoom: (user: RoomUser, roomId: number) => Room | null;
   broadcastUpdateRoomMessage: (ctx: Context<Session>) => void;
+  removeUserRooms: (userId: number) => void;
 }
 
 export class RoomService implements IRoomService {
@@ -45,6 +46,12 @@ export class RoomService implements IRoomService {
     );
 
     return availableRoom;
+  }
+
+  removeUserRooms(userId: number) {
+    this.availableRooms = this.availableRooms.filter(
+      (room) => room.roomUsers[0].index !== userId
+    );
   }
 
   broadcastUpdateRoomMessage(ctx: Context<Session>): void {

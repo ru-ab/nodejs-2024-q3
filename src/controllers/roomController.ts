@@ -8,10 +8,12 @@ import {
 } from '../types/message.types';
 import { RoomUser } from '../types/room.types';
 import { Session } from '../types/session.types';
+import { User } from '../types/user.types';
 
 export interface IRoomController {
   createRoom: (req: CreateRoomRequest, ctx: Context<Session>) => void;
   addUserToRoom: (req: AddUserToRoomRequest, ctx: Context<Session>) => void;
+  removeUserRooms: (user: User, ctx: Context<Session>) => void;
 }
 
 export class RoomController implements IRoomController {
@@ -86,5 +88,11 @@ export class RoomController implements IRoomController {
         (roomUser) => `${roomUser.name}[${roomUser.index}]`
       )}.`
     );
+  };
+
+  removeUserRooms = (user: User, ctx: Context<Session>) => {
+    this.roomService.removeUserRooms(user.index);
+    console.log(`User ${user.name}[${user.index}] rooms removed.`);
+    this.roomService.broadcastUpdateRoomMessage(ctx);
   };
 }

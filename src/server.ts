@@ -23,6 +23,10 @@ export class Server {
     this.messageServer.use('add_ships', gameController.addShips);
     this.messageServer.use('attack', gameController.attack);
     this.messageServer.use('randomAttack', gameController.randomAttack);
+
+    this.messageServer.on('userDisconnected', ({ user, ctx }) =>
+      roomController.removeUserRooms(user, ctx)
+    );
   }
 
   public async terminate() {

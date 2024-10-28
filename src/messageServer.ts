@@ -1,4 +1,5 @@
 import WebSocket, { WebSocketServer } from 'ws';
+import Observer from './observer';
 import { User } from './types/user.types';
 
 export type SendMessage = (message: unknown) => void;
@@ -25,7 +26,11 @@ type Connection = {
   ws: WebSocket;
 };
 
-export class MessageServer<T, S> {
+type EventTypes<S> = {
+  userDisconnected: { user: User; ctx: Context<S> };
+};
+
+export class MessageServer<T, S> extends Observer<EventTypes<S>> {
   private handlers: Handlers<T, S>;
 
   private wss: WebSocketServer;
@@ -33,6 +38,7 @@ export class MessageServer<T, S> {
   private connections: Connection[];
 
   constructor(port: number) {
+    super();
     this.connections = [];
     this.handlers = {} as Handlers<T, S>;
     this.wss = new WebSocketServer({ port });
@@ -127,6 +133,11 @@ export class MessageServer<T, S> {
       console.log('Connection closed.');
       return;
     }
+
+    this.dispatch('userDisconnected', {
+      user: connection.user,
+      ctx: this.createContext(ws),
+    });
 
     console.log(
       `Connection ${connection.user.name}[${connection.user.index}] closed.`
