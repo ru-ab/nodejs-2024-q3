@@ -22,6 +22,7 @@ export type ResponseTypes = {
   attack: AttackResponse;
   finish: FinishResponse;
   update_winners: UpdateWinnersResponse;
+  diconnect: DisconnectResponse;
 };
 
 export interface RegisterRequest extends Message<RequestTypes> {
@@ -118,4 +119,9 @@ export interface FinishResponse extends Message<ResponseTypes> {
 export interface UpdateWinnersResponse extends Message<ResponseTypes> {
   type: 'update_winners';
   data: Winner[];
+}
+
+export interface DisconnectResponse extends Message<ResponseTypes> {
+  type: 'diconnect';
+  data: '';
 }

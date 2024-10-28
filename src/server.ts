@@ -24,9 +24,11 @@ export class Server {
     this.messageServer.use('attack', gameController.attack);
     this.messageServer.use('randomAttack', gameController.randomAttack);
 
-    this.messageServer.on('userDisconnected', ({ user, ctx }) =>
-      roomController.removeUserRooms(user, ctx)
-    );
+    this.messageServer.on('userDisconnected', ({ user, ctx }) => {
+      console.log(`User ${user.name}[${user.index}] disconnected.`);
+      roomController.removeUserRooms(user, ctx);
+      gameController.handleUserDisconnect(user, ctx);
+    });
   }
 
   public async terminate() {

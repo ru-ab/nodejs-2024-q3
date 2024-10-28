@@ -18,6 +18,7 @@ export interface IGameService {
     gameId: number,
     playerId: number
   ) => Position | null;
+  getGameWithPlayer: (playerId: number) => Game | null;
 }
 
 const shipLengths = {
@@ -260,5 +261,16 @@ export class GameService implements IGameService {
     );
 
     return target;
+  }
+
+  public getGameWithPlayer(playerId: number): Game | null {
+    for (const game of this.games) {
+      const player = game.players.find((player) => player.index === playerId);
+      if (player) {
+        return game;
+      }
+    }
+
+    return null;
   }
 }

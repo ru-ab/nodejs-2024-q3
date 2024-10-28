@@ -7,17 +7,20 @@ import {
   AddShipsRequest,
   AttackRequest,
   AttackResponse,
+  DisconnectResponse,
   FinishResponse,
   RandomAttackRequest,
   StartGameResponse,
   TurnResponse,
 } from '../types/message.types';
 import { Session } from '../types/session.types';
+import { User } from '../types/user.types';
 
 export interface IGameController {
   addShips: (req: AddShipsRequest, ctx: Context<Session>) => void;
   attack: (req: AttackRequest, ctx: Context<Session>) => void;
   randomAttack: (req: RandomAttackRequest, ctx: Context<Session>) => void;
+  handleUserDisconnect: (user: User, ctx: Context<Session>) => void;
 }
 
 export class GameController implements IGameController {
@@ -116,6 +119,10 @@ export class GameController implements IGameController {
       this.winnerService.updateWinner(user.name);
       this.winnerService.broadcastUpdateWinnersMessage(ctx);
 
+      console.log(
+        `User ${user.name}[${user.index}] wins Game[${game.gameId}].`
+      );
+
       this.gameService.finishGame(game.gameId);
     } else {
       this.sendTurn(game, ctx);
@@ -147,6 +154,42 @@ export class GameController implements IGameController {
       },
       ctx
     );
+  };
+
+  public handleUserDisconnect = (user: User, ctx: Context<Session>) => {
+    const gameWithUser = this.gameService.getGameWithPlayer(user.index);
+    if (!gameWithUser) {
+      return;
+    }
+
+    const anotherPlayer = gameWithUser.players.find(
+      (player) => player.index !== user.index
+    );
+    if (!anotherPlayer) {
+      return;
+    }
+
+    const disconnectMessage: DisconnectResponse = {
+      id: 0,
+      type: 'diconnect',
+      data: '',
+    };
+
+    const anotherUser = this.userService.getUser(anotherPlayer.index);
+    if (!anotherUser) {
+      return;
+    }
+
+    ctx.sendTo(anotherPlayer.index, disconnectMessage);
+
+    this.winnerService.updateWinner(anotherUser.name);
+    this.winnerService.broadcastUpdateWinnersMessage(ctx);
+
+    console.log(
+      `User ${anotherUser.name}[${anotherUser.index}] wins Game[${gameWithUser.gameId}].`
+    );
+
+    this.gameService.finishGame(gameWithUser.gameId);
   };
 
   private sendTurn(game: Game, ctx: Context<Session>) {
