@@ -21,13 +21,6 @@ export interface IGameService {
   getGameWithPlayer: (playerId: number) => Game | null;
 }
 
-const shipLengths = {
-  small: 1,
-  medium: 2,
-  large: 3,
-  huge: 4,
-};
-
 export class GameService implements IGameService {
   private nextGameId: number = 1;
 
@@ -126,11 +119,11 @@ export class GameService implements IGameService {
       if (
         (!ship.direction &&
           attack.x >= ship.position.x &&
-          attack.x < ship.position.x + shipLengths[ship.type] &&
+          attack.x < ship.position.x + ship.length &&
           attack.y === ship.position.y) ||
         (ship.direction &&
           attack.y >= ship.position.y &&
-          attack.y < ship.position.y + shipLengths[ship.type] &&
+          attack.y < ship.position.y + ship.length &&
           attack.x === ship.position.x)
       ) {
         damagedShip = ship;
@@ -160,10 +153,7 @@ export class GameService implements IGameService {
     }
 
     const attackResult: AttackResult = {
-      status:
-        damagedShip.damages === shipLengths[damagedShip.type]
-          ? 'killed'
-          : 'shot',
+      status: damagedShip.damages === damagedShip.length ? 'killed' : 'shot',
       currentPlayer: attack.indexPlayer,
       position: {
         x: attack.x,
@@ -178,7 +168,7 @@ export class GameService implements IGameService {
         x <
         damagedShip.position.x +
           1 +
-          (!damagedShip.direction ? shipLengths[damagedShip.type] : 1);
+          (!damagedShip.direction ? damagedShip.length : 1);
         x += 1
       ) {
         for (
@@ -186,7 +176,7 @@ export class GameService implements IGameService {
           y <
           damagedShip.position.y +
             1 +
-            (damagedShip.direction ? shipLengths[damagedShip.type] : 1);
+            (damagedShip.direction ? damagedShip.length : 1);
           y += 1
         ) {
           if (
@@ -230,9 +220,7 @@ export class GameService implements IGameService {
       return null;
     }
 
-    return !enemy.ships.some(
-      (ship) => (ship?.damages ?? 0) < shipLengths[ship.type]
-    );
+    return !enemy.ships.some((ship) => (ship?.damages ?? 0) < ship.length);
   }
 
   public getRandomTargetPosition(

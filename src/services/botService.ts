@@ -151,24 +151,20 @@ export class BotService implements IBotService {
   }
 
   private generateShips(): Ship[] {
-    const shipLengths = {
-      small: 1,
-      medium: 2,
-      large: 3,
-      huge: 4,
-    };
-
-    const shipsVariants: ('huge' | 'large' | 'medium' | 'small')[] = [
-      'huge',
-      'large',
-      'large',
-      'medium',
-      'medium',
-      'medium',
-      'small',
-      'small',
-      'small',
-      'small',
+    const shipsVariants: {
+      type: 'huge' | 'large' | 'medium' | 'small';
+      length: number;
+    }[] = [
+      { type: 'huge', length: 4 },
+      { type: 'large', length: 3 },
+      { type: 'large', length: 3 },
+      { type: 'medium', length: 2 },
+      { type: 'medium', length: 2 },
+      { type: 'medium', length: 2 },
+      { type: 'small', length: 1 },
+      { type: 'small', length: 1 },
+      { type: 'small', length: 1 },
+      { type: 'small', length: 1 },
     ];
 
     const ships: Ship[] = [];
@@ -206,7 +202,7 @@ export class BotService implements IBotService {
       return true;
     }
 
-    for (const type of shipsVariants) {
+    for (const { type, length } of shipsVariants) {
       let placed = false;
 
       while (!placed) {
@@ -214,8 +210,8 @@ export class BotService implements IBotService {
         const y = Math.floor(Math.random() * 10);
         const direction = Math.random() < 0.5;
 
-        if (canPlaceShip(x, y, shipLengths[type], direction)) {
-          for (let i = 0; i < shipLengths[type]; i++) {
+        if (canPlaceShip(x, y, length, direction)) {
+          for (let i = 0; i < length; i++) {
             const newX = x + (direction ? 0 : i);
             const newY = y + (direction ? i : 0);
             field[newX][newY] = true;
@@ -225,7 +221,7 @@ export class BotService implements IBotService {
             position: { x, y },
             direction,
             type,
-            length: shipLengths[type],
+            length,
           });
           placed = true;
         }
