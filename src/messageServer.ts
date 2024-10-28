@@ -1,6 +1,8 @@
 import WebSocket, { WebSocketServer } from 'ws';
 import Observer from './observer';
 import { User } from './types/user.types';
+import { parseData } from './utils/parseData';
+import { stringifyData } from './utils/stringifyData';
 
 export type SendMessage = (message: unknown) => void;
 export type SendMessageTo = (userId: number, message: unknown) => void;
@@ -95,6 +97,9 @@ export class MessageServer<T, S> extends Observer<EventTypes<S>> {
           (connection) => connection.user.index === user.index
         );
         if (connection) {
+          console.log(
+            `Connection with userId=${connection.user.index} already exists.`
+          );
           return false;
         }
         this.connections.push({ user, ws });
@@ -102,23 +107,23 @@ export class MessageServer<T, S> extends Observer<EventTypes<S>> {
       },
       broadcast: (message) =>
         this.connections.forEach((connection) =>
-          connection.ws.send(this.stringifyData(message as Message))
+          connection.ws.send(stringifyData(message as Message))
         ),
       sendTo: (userId, message) => {
         const receiver = this.connections.find(
           (connection) => connection.user.index === userId
         );
         if (receiver) {
-          receiver.ws.send(this.stringifyData(message as Message));
+          receiver.ws.send(stringifyData(message as Message));
         }
       },
-      reply: (message) => ws.send(this.stringifyData(message as Message)),
+      reply: (message) => ws.send(stringifyData(message as Message)),
     };
   }
 
   private handleIncomingMessage(data: WebSocket.RawData, ctx: Context<S>) {
     try {
-      const messageData = this.parseData(data.toString());
+      const messageData = parseData(data.toString());
       this.callHandler(messageData.type, messageData as T[keyof T], ctx);
     } catch (error) {
       console.error(error, data.toString());
@@ -149,21 +154,5 @@ export class MessageServer<T, S> extends Observer<EventTypes<S>> {
 
   private callHandler<K extends keyof T>(type: K, data: T[K], ctx: Context<S>) {
     this.handlers[type]?.(data, ctx);
-  }
-
-  private parseData(data: string): Message<T> {
-    let message: Message<T> = JSON.parse(data);
-    message = {
-      ...message,
-      data: !!message.data ? JSON.parse(message.data as string) : '',
-    };
-    return message;
-  }
-
-  private stringifyData(data: Message): string {
-    return JSON.stringify({
-      ...(data as Message),
-      data: JSON.stringify((data as Message).data),
-    });
   }
 }

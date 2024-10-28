@@ -3,6 +3,7 @@ import { GameController } from './controllers/gameController';
 import { RoomController } from './controllers/roomController';
 import { UserController } from './controllers/userController';
 import { Server } from './server';
+import { BotService } from './services/botService.js';
 import { GameService } from './services/gameService';
 import { RoomService } from './services/roomService';
 import { UserService } from './services/userService';
@@ -17,13 +18,14 @@ const userService = new UserService();
 const roomService = new RoomService();
 const gameService = new GameService();
 const winnerService = new WinnerService();
+const botService = new BotService();
 
 const userController = new UserController(
   userService,
   roomService,
   winnerService
 );
-const roomController = new RoomController(roomService, gameService);
+const roomController = new RoomController(roomService, gameService, botService);
 const gameController = new GameController(
   gameService,
   winnerService,

@@ -11,6 +11,7 @@ export type RequestTypes = {
   add_ships: AddShipsRequest;
   attack: AttackRequest;
   randomAttack: RandomAttackRequest;
+  single_play: SinglePlayRequest;
 };
 
 export type ResponseTypes = {
@@ -123,5 +124,10 @@ export interface UpdateWinnersResponse extends Message<ResponseTypes> {
 
 export interface DisconnectResponse extends Message<ResponseTypes> {
   type: 'diconnect';
+  data: '';
+}
+
+export interface SinglePlayRequest extends Message<RequestTypes> {
+  type: 'single_play';
   data: '';
 }

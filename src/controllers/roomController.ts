@@ -1,10 +1,12 @@
 import { Context } from '../messageServer';
+import { IBotService } from '../services/botService';
 import { IGameService } from '../services/gameService';
 import { IRoomService } from '../services/roomService';
 import {
   AddUserToRoomRequest,
   CreateGameResponse,
   CreateRoomRequest,
+  SinglePlayRequest,
 } from '../types/message.types';
 import { RoomUser } from '../types/room.types';
 import { Session } from '../types/session.types';
@@ -14,15 +16,17 @@ export interface IRoomController {
   createRoom: (req: CreateRoomRequest, ctx: Context<Session>) => void;
   addUserToRoom: (req: AddUserToRoomRequest, ctx: Context<Session>) => void;
   removeUserRooms: (user: User, ctx: Context<Session>) => void;
+  singlePlay: (req: SinglePlayRequest, ctx: Context<Session>) => Promise<void>;
 }
 
 export class RoomController implements IRoomController {
   constructor(
     private readonly roomService: IRoomService,
-    private readonly gameService: IGameService
+    private readonly gameService: IGameService,
+    private readonly botService: IBotService
   ) {}
 
-  createRoom = (req: CreateRoomRequest, ctx: Context<Session>): void => {
+  public createRoom = (req: CreateRoomRequest, ctx: Context<Session>): void => {
     const user = ctx.session.user;
     if (!user) {
       return;
@@ -41,7 +45,10 @@ export class RoomController implements IRoomController {
     this.roomService.broadcastUpdateRoomMessage(ctx);
   };
 
-  addUserToRoom = (req: AddUserToRoomRequest, ctx: Context<Session>): void => {
+  public addUserToRoom = (
+    req: AddUserToRoomRequest,
+    ctx: Context<Session>
+  ): void => {
     const user = ctx.session.user;
     if (!user) {
       return;
@@ -90,9 +97,23 @@ export class RoomController implements IRoomController {
     );
   };
 
-  removeUserRooms = (user: User, ctx: Context<Session>) => {
+  public removeUserRooms = (user: User, ctx: Context<Session>) => {
     this.roomService.removeUserRooms(user.index);
     console.log(`User ${user.name}[${user.index}] rooms removed.`);
     this.roomService.broadcastUpdateRoomMessage(ctx);
+  };
+
+  public singlePlay = async (req: SinglePlayRequest, ctx: Context<Session>) => {
+    const user = ctx.session.user;
+    if (!user) {
+      return;
+    }
+
+    const room = this.roomService.createRoom(user);
+    await this.botService.addBotToRoom(room.roomId);
+
+    console.log(
+      `Received command: "single_play" from user: ${user.name}[${user.index}].`
+    );
   };
 }

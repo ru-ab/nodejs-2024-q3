@@ -23,6 +23,7 @@ export class Server {
     this.messageServer.use('add_ships', gameController.addShips);
     this.messageServer.use('attack', gameController.attack);
     this.messageServer.use('randomAttack', gameController.randomAttack);
+    this.messageServer.use('single_play', roomController.singlePlay);
 
     this.messageServer.on('userDisconnected', ({ user, ctx }) => {
       console.log(`User ${user.name}[${user.index}] disconnected.`);
